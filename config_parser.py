@@ -3,38 +3,98 @@ import re
 import os
 import io
 
-EPREFIX=subprocess.check_output(["portageq","envvar","EPREFIX"])
+EPREFIX=subprocess.check_output(["portageq","envvar","EPREFIX"]).decode().strip()
 ETC=EPREFIX + "/etc"
 
-class MakeConf:
+class ConfFile:
+    
+    def __init__(self):
+        """
+        self.variables -- List of variables presenst in the config file
+        self.variables_dict -- Dictionary of the variables and
+        their corresponding variables
+        """
+        self.variables = []
+        self.variables_dict = {}
+
+    def getVariables(self, requestedVars=[]):
+        k = []
+        for i in requestedVars:
+            if i in self.variables:
+                k.append(self.variables_dict[i])
+            else:
+                k.append(-1)
+        return k
+
+    def getVariablesList(self):
+        return self.variables
+
+    def getVariablesDict(self):
+        return self.variables_dict
+
+
+class MakeConf(ConfFile):
 
     # Importing make.conf
     if os.path.isfile(ETC + '/make.conf'):
-        make_conf = open(ETC + '/make.cnof', 'r')
-    else if os.path.isfile(ETC + '/portage/make.conf'):
-        make_conf = open(ETC + '/portage/make.conf', 'r'):
+        make_conf_dir = ETC + '/make.conf'
+    elif os.path.isfile(ETC + '/portage/make.conf'):
+        make_conf_dir = ETC + '/portage/make.conf'
     else:
-        raise FileNotFoundError("No make.conf found in /etc/portage/ or /etc/!")
+        raise FileNotFoundError("No make.conf found in /etc/portage/ or /etc/ !")
 
-    def __init__(self):
-        self.variables = []
-        self.variables_dict = {} 
-        for i in make.conf:
+    def __init__(self, file_dir=make_conf_dir):
+        ConfFile.__init__(self) 
+        make_conf = open(file_dir, 'r')
+       
+        # Append all make.conf variables into self.variables
+        for i in make_conf:
             if i.find('=',0) != -1: # true if there is a '=' on this line
                 self.variables.append(re.match('\S+(?=\s*=\s*")',i).group(0))
-        for flag in variables:
-            curRegex = '(?:' + flag + '\s*=\s*").*(?=")'
-            variable_dict[flag] =  re.search(curRegex, make_conf.read(),re.MULTILINE)
-        
+                
+        make_conf.close()
 
-class PackageUse:
+        # Collapse make_conf into a string w/o \n
+        with open(file_dir, 'r') as s:
+            make_conf_string = s.read().replace('\n', ' ') 
+        # Enter the corresponding values to the keys into variables_dict        
+        index = 0
+        for variable in self.variables:
+            index = make_conf_string.find(variable, index)
+            self.variables_dict[variable] = re.search('(?<=")[^"]*', make_conf_string[index:]).group(0)
+    
 
-# Importing package.use
-if os.path.isfile(ETC + '/portage/package.use'):
-    package_use = open(ETC + '/portage/package.use')
-else:
-    raise FileNotFoundError("No package.use found in /etc/portage/!")
+class PackageUse(ConfFile):
+
+    # Importing package.use
+    if os.path.isfile(ETC + '/portage/package.use'):
+        package_use_dir = ETC + '/portage/package.use'
+    else:
+        raise FileNotFoundError("No package.use found in /etc/portage/!")
         
+class UseMask(ConfFile):
+    
+    # Due to nature of ues.mask, having self.variables_dict
+    # does not make sense.
+
+    # importing use.mask
+    if os.path.isfile(ETC + '/portage/profile/use.mask'):
+        use_mask_dir = ETC + '/portage/profile/use.mask'
+    else:
+        raise FileNotFoundError("No use.mask found in /etc/portage/profile/ !")
+
+    def __init__(self, file_dir=use_mask_dir):
+        
+        ConfFile.__init__(self) 
+        with open(file_dir, 'r') as use_mask:
+            for i in use_mask:
+                if i.find('#', 0) == -1: # if line is uncommented
+                    self.variables.append(i[:-1]) # -1 index to get rid of \n
+
+class PackageMask(ConfFile):
+    pass
+    
+
 
 """
 List format following the ACTIVE_FLAGS array in euse from gentoolkit. 
