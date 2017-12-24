@@ -37,13 +37,13 @@ def getGlobalUse(useflag):
     if useflag in globalUseDict:
         return globalUseDict[useflag]
     else:
-        return False
+        return -1
 
 def getLocalUse(useflag):
     if useflag in localUseDict:
         return localUseDict[useflag]
     else:
-        return False
+        return -1
 
 def useconfIsValid(raw_useflag_list):
     for useflag in useflag_list:

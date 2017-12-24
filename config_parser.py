@@ -86,15 +86,27 @@ class UseMask(ConfFile):
     def __init__(self, file_dir=use_mask_dir):
         
         ConfFile.__init__(self) 
-        with open(file_dir, 'r') as use_mask:
-            for i in use_mask:
-                if i.find('#', 0) == -1: # if line is uncommented
-                    self.variables.append(i[:-1]) # -1 index to get rid of \n
+        for j in collapse(file_dir): 
+            with open(j, 'r') as use_mask:
+                for i in use_mask:
+                    if i.find('#', 0) == -1: # if line is uncommented
+                        self.variables.append(i[:-1]) # -1 index to get rid of \n
 
 class PackageMask(ConfFile):
     pass
     
 
+def collapse(directory):
+    files = []
+    list_dir = os.listdir(directory)
+    for i in list_dir:
+        if os.path.isfile(directory + '/' + i):
+            with open(directory + '/' + i) as j:
+                files.append(j)
+        else:
+            for k in collapse(directory + '/' + i):
+                files.append(k)
+    return files
 
 """
 List format following the ACTIVE_FLAGS array in euse from gentoolkit. 
