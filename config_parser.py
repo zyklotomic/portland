@@ -71,6 +71,16 @@ class PackageUse(ConfFile):
         package_use_dir = ETC + '/portage/package.use'
     else:
         raise FileNotFoundError("No package.use found in /etc/portage/!")
+
+    def __init__(self, file_dir=package_use_dir):
+        ConfFile.__init__(self)
+        for j in collapse(file_dir):
+            with open(j, 'r') as package_use:
+                for i in package_use:
+                    if i.find('#', 0) == -1 and i != '\n':
+                        line_list =  i.split()
+                        self.variables.append(line_list[0])
+                        self.variables_dict[line_list[0]] = line_list[1:]
         
 class UseMask(ConfFile):
     
@@ -81,10 +91,10 @@ class UseMask(ConfFile):
     if os.path.isfile(ETC + '/portage/profile/use.mask'):
         use_mask_dir = ETC + '/portage/profile/use.mask'
     else:
-        raise FileNotFoundError("No use.mask found in /etc/portage/profile/ !")
+        use_mask_dir = ''
+        # FileNotFoundError("No use.mask found in /etc/portage/profile/ !")
 
     def __init__(self, file_dir=use_mask_dir):
-        
         ConfFile.__init__(self) 
         for j in collapse(file_dir): 
             with open(j, 'r') as use_mask:
@@ -96,7 +106,10 @@ class PackageMask(ConfFile):
     pass
     
 
+# Returns list of file objects in a directory and it's sub-dirs.
 def collapse(directory):
+    if os.path.isfile(directory):
+        return [directory]
     files = []
     list_dir = os.listdir(directory)
     for i in list_dir:
