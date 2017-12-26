@@ -72,10 +72,12 @@ class PackageUse(ConfFile):
     else:
         raise FileNotFoundError("No package.use found in /etc/portage/!")
 
+    # Maybe needs dict. created of all the dirs.
     def __init__(self, file_dir=package_use_dir):
         ConfFile.__init__(self)
         for j in collapse(file_dir):
             with open(j, 'r') as package_use:
+                temp_list = []
                 for i in package_use:
                     if i.find('#', 0) == -1 and i != '\n':
                         line_list =  i.split()
@@ -94,32 +96,53 @@ class UseMask(ConfFile):
         use_mask_dir = ''
         # FileNotFoundError("No use.mask found in /etc/portage/profile/ !")
 
+    # variables_dict['file_path'] = variables in the file
     def __init__(self, file_dir=use_mask_dir):
         ConfFile.__init__(self) 
         for j in collapse(file_dir): 
             with open(j, 'r') as use_mask:
+                temp_list = []
                 for i in use_mask:
                     if i.find('#', 0) == -1: # if line is uncommented
                         self.variables.append(i[:-1]) # -1 index to get rid of \n
+                        temp_list.append(i[:-1])
+                self.variables_dict[j] = temp_list
 
 class PackageMask(ConfFile):
-    pass
     
+    if os.path.isdir(ETC + '/portage/package.mask'):
+        package_use_dir = ETC + '/portage/package.mask'
+   
+    # variables_dict['file_path'] = variables in the file
+    def __init__(self, file_dir=package_use_dir):
+        ConfFile.__init__(self)
+        for j in collapse(file_dir):
+            with open(j, 'r') as package_mask:
+                temp_list = []
+                for i in package_mask:
+                    if i != '\n':
+                        self.variables.append(i[:-1])
+                        temp_list.append(i[:-1])
+                self.variables_dict[j] = temp_list
 
-# Returns list of file objects in a directory and it's sub-dirs.
+class PackageLicense(ConfFile):
+    pass
+
+
+# Returns list of paths of all the files in a directory and it's subdirs.
 def collapse(directory):
     if os.path.isfile(directory):
-        return [directory]
-    files = []
-    list_dir = os.listdir(directory)
-    for i in list_dir:
-        if os.path.isfile(directory + '/' + i):
-            with open(directory + '/' + i) as j:
-                files.append(j)
-        else:
-            for k in collapse(directory + '/' + i):
-                files.append(k)
-    return files
+            return [directory]
+    else:
+        files = []
+        list_dir = os.listdir(directory)
+        for i in list_dir:
+            if os.path.isfile(directory + '/' + i):
+                    files.append(directory + '/' + i)
+            else:
+                for k in collapse(directory + '/' + i):
+                    files.append(k)
+        return files
 
 """
 List format following the ACTIVE_FLAGS array in euse from gentoolkit. 
