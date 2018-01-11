@@ -1,4 +1,6 @@
 import time
+import re
+
 emerge_log_dir = '/var/log/emerge.log'
 
 def sec_to_time(seconds): # [days, hours, minutes, seconds]
@@ -9,4 +11,6 @@ def sec_to_time(seconds): # [days, hours, minutes, seconds]
 
 def parseLog(log_dir=emerge_log_dir,  buff_size=8192):
     pass
-    
+
+def parseTime(log_line):
+    return re.match('[0-9]*', log_line).group(0) 
