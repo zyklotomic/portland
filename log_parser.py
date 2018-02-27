@@ -1,7 +1,8 @@
 import time
 import re
+import portage_env
 
-emerge_log_dir = '/var/log/emerge.log'
+emerge_log_dir = portage_env.EMERGE_LOG_DIR
 
 def sec_to_time(seconds): # [days, hours, minutes, seconds]
     m, s = divmod(seconds, 60)
@@ -9,7 +10,7 @@ def sec_to_time(seconds): # [days, hours, minutes, seconds]
     d, h = divmod(h, 24) 
     return [d, h, m, s]
 
-def parseLog(log_dir=emerge_log_dir,  buff_size=8192):
+def parseLog(log_dir=emerge_log_dir, buff_size=8192):
     pass
 
 def parseTime(log_line):

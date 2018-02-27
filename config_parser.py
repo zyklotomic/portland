@@ -95,7 +95,7 @@ class UseMask(ConfFile):
 
     # variables_dict['file_path'] = variables in the file
     def __init__(self, file_dir=use_mask_dir):
-        ConfFile.__init__(self)
+        ConfFile.__init__(slf)
         for j in collapse(file_dir):
             with open(j, 'r') as use_mask:
                 temp_list = []
@@ -123,7 +123,7 @@ class PackageMask(ConfFile):
                 self.variables_dict[j] = temp_list
 
 class PackageLicense(ConfFile):
-    
+
     if os.path.isfile(ETC + '/portage/package.license'):
         package_license_dir = ETC + '/portage/package.license'
     else:
@@ -136,8 +136,6 @@ class PackageLicense(ConfFile):
                 if i[:1] != '#':
                     self.variables.append(i)
                     self.variables_dict[i.split()[:1]] = i.split[1:]
-                
-
 
 # Returns list of paths of all the files in a directory and it's subdirs.
 def collapse(directory):
