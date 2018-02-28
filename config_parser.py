@@ -137,6 +137,42 @@ class PackageLicense(ConfFile):
                     self.variables.append(i)
                     self.variables_dict[i.split()[:1]] = i.split[1:]
 
+class Ebuild(ConfFile):
+
+    def __init__(self, cp): #cp category/package
+        ConfFile.__init__(self)
+        ebuild_dir = portage_env.EBUILD_TREE + '/' + cp
+        self.cp = cp
+        self.list_dir = os.listdir(ebuild_dir)
+        self.ebuild_versions = [re.search('(-)(.*)(?=.ebuild)', i).group(2)
+                               for i in self.list_dir
+                               if i.find('.ebuild') != -1]
+        
+        # Only interested in select variables
+        self.variables = ['DESCRIPTION', 'HOMEPAGE', 'SLOT', 'LICENSE', 'IUSE']
+        temp_var_list = self.variables[:]
+        # Pick an arbitrary ebuild file
+        ebuild_file = [i for i in self.list_dir if i.find('.ebuild') != -1][0]
+
+        with open(ebuild_dir + '/' + ebuild_file, 'r') as ebuild: # get ebuild directory correct
+            for line in ebuild:
+                if len(temp_var_list) == 0: 
+                    break
+                else:
+                    for var in temp_var_list:
+                        if line.find(var, 0) != -1:
+                            var_val_regex = '({}.*=.*")(.*(?="))'.format(var)
+                            var_value = re.search(var_val_regex, line).group(2)
+                            self.variables_dict[var] = var_value
+                            temp_var_list.remove(var)
+
+    def get_cp(self):
+        return self.cp
+    
+    def get_versions(self):
+        return self.ebuild_versions
+        
+
 # Returns list of paths of all the files in a directory and it's subdirs.
 def collapse(directory):
     if os.path.isfile(directory):
