@@ -1,6 +1,7 @@
 import urwid
 
 palette = [
-          ('white bold', 'white', 'bold'),
-          ('warning', 'white', 'light red', 'bold'),
+          ('blue bold', 'light blue', 'default', 'bold'),
+          ('white bold', 'white', 'default', 'bold'),
+          ('white on red', 'white', 'light red', 'bold'),
           ]

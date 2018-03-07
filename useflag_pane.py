@@ -13,14 +13,14 @@ class USEFlag_Pane:
             g_widget_list.append(urwid.Text(self.global_dict[i]))
             g_widget_list.append(urwid.Divider())
 
-        self.listbox = urwid.ListBox(urwid.SimpleListWalker(g_widget_list))
+        self.glistbox = urwid.ListBox(urwid.SimpleListWalker(g_widget_list))
 
-    def get_widget(self):
-        return self.listbox
+    def get_gwidget(self):
+        return self.glistbox
 
 palette = [('blue-bold', 'light blue', 'default', 'bold')]
 gl = useflag_data.getGlobalUseDict()
 ll = {}
 pane = USEFlag_Pane(gl, ll)
-loop = urwid.MainLoop(pane.get_widget(), palette)
+loop = urwid.MainLoop(pane.get_gwidget(), palette)
 loop.run()

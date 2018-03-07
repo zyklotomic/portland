@@ -149,8 +149,8 @@ class Ebuild(ConfFile):
                                if i.find('.ebuild') != -1]
         
         # Only interested in select variables
-        self.variables = ['DESCRIPTION', 'HOMEPAGE', 'SLOT', 'LICENSE', 'IUSE']
-        temp_var_list = self.variables[:]
+        temp_var_list= ['DESCRIPTION', 'HOMEPAGE', 'SLOT', 'LICENSE', 'IUSE']
+
         # Pick an arbitrary ebuild file
         ebuild_file = [i for i in self.list_dir if i.find('.ebuild') != -1][0]
 
@@ -165,9 +165,13 @@ class Ebuild(ConfFile):
                             var_value = re.search(var_val_regex, line).group(2)
                             self.variables_dict[var] = var_value
                             temp_var_list.remove(var)
+                            self.variables.append(var)
 
     def get_cp(self):
         return self.cp
+
+    def get_cat(self):
+        return re.match('.*(?=/)', self.cp).group(0)
     
     def get_versions(self):
         return self.ebuild_versions
