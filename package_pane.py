@@ -8,9 +8,7 @@ import os
 import re
 
 class Package_Pane:
-
-    def __init__(self, ebuild): 
-        
+    def __init__(self, ebuild):  
         title = urwid.Text(('blue-bold', ebuild.get_cp()))
         
         row_titles = ['Description', 'Homepage', 'SLOT(S)', 'License', 'IUSE']
@@ -36,12 +34,12 @@ class Package_Pane:
         # MERGED INFO
         emerge_title = urwid.Text(('bold', 'Emerge History'))
 
+        emerged_tables = [] 
         if ebuild.get_cp() in vardb.cp_list:
             db_dir = portage_env.VARDBPKG + '/' + ebuild.get_cat()
             list_dir = os.listdir(db_dir)
             package_name = re.search('(.*/)(.*)', ebuild.get_cp()).group(2)
             merged_list = [i for i in list_dir if i.find(package_name, 0) != -1]
-            emerged_tables = [] 
             for k in merged_list:
                 curEbuild = vardb.MergedEbuild(ebuild.get_cat() + '/' + k)
                 curEbuild_dict = curEbuild.get_var_dict() 
@@ -72,7 +70,9 @@ class Package_Pane:
 palette = [('blue-bold', 'light blue', 'default', 'bold'),
             ('bold', 'white', 'default', 'bold'),
             ('italics', 'white', '', 'underline')]
-# ebuild = config_parser.Ebuild('dev-lang/python')
-# vim_pane = Package_Pane(ebuild).get_widget()
+vim_ebuild = config_parser.Ebuild('dev-lang/python')
+ebuild_2 = config_parser.Ebuild('app-editors/neovim')
+ebuild_2pane = Package_Pane(ebuild_2).get_listbox()
+vim_pane = Package_Pane(vim_ebuild).get_listbox()
 # loop = urwid.MainLoop(vim_pane, palette)
 # loop.run()
