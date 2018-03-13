@@ -7,7 +7,7 @@ import portage_env
 import os
 import re
 
-class Package_Pane:
+class Package_Pane(urwid.ListBox):
     def __init__(self, ebuild):  
         title = urwid.Text(('blue-bold', ebuild.get_cp()))
         
@@ -15,6 +15,7 @@ class Package_Pane:
         title_keys = ['DESCRIPTION', 'HOMEPAGE', 'SLOT'   , 'LICENSE', 'IUSE']
         ebuild_vd = ebuild.getVariablesDict()
         row_dict = {}
+        self.title = ebuild.get_cp()
          
         # Detecting the available variables
         for j,i in enumerate(title_keys):
@@ -24,7 +25,7 @@ class Package_Pane:
                 row_dict[row_titles[j]] = 'None'
         
         # PKG INFO
-        pkg_table = urwidtable.Table(row_dict).get_utable()
+        pkg_table = urwidtable.Table(row_dict)
         divider = urwid.Divider('-')
         
         # AVAILABLE INFO
@@ -54,7 +55,7 @@ class Package_Pane:
                     except:
                         pass
 
-                ebuild_table = urwidtable.Table(merged_dict, title=k).get_utable()
+                ebuild_table = urwidtable.Table(merged_dict, title=k)
                 emerged_tables.append(ebuild_table) 
         else:
             emerged_tables.append(urwid.Text('No past merges'))
@@ -62,17 +63,19 @@ class Package_Pane:
 
         widget_list = [title, pkg_table, divider, versions_title, *versions, divider,
                       emerge_title, *emerged_tables]
-        self.listbox = urwid.ListBox(urwid.SimpleFocusListWalker(widget_list))
+        
+        super(Package_Pane, self).__init__(urwid.SimpleFocusListWalker(widget_list))
 
-    def get_listbox(self):
-        return self.listbox
+    def get_title(self):
+        return self.title
 
-palette = [('blue-bold', 'light blue', 'default', 'bold'),
-            ('bold', 'white', 'default', 'bold'),
-            ('italics', 'white', '', 'underline')]
+# palette = [('blue-bold', 'light blue', 'default', 'bold'),
+#             ('bold', 'white', 'default', 'bold'),
+#             ('italics', 'white', '', 'underline'),
+#             ('green-bold', 'light green', 'default', 'bold')]
 vim_ebuild = config_parser.Ebuild('dev-lang/python')
 ebuild_2 = config_parser.Ebuild('app-editors/neovim')
-ebuild_2pane = Package_Pane(ebuild_2).get_listbox()
-vim_pane = Package_Pane(vim_ebuild).get_listbox()
+ebuild_2pane = Package_Pane(ebuild_2)
+vim_pane = Package_Pane(vim_ebuild)
 # loop = urwid.MainLoop(vim_pane, palette)
 # loop.run()

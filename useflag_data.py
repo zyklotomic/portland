@@ -32,7 +32,7 @@ def getLocalUseDict(directory=portage_env.USE_LOCAL_DESC):
                 useFlagDesc = line[initDescIndex:-1]
          
                 if useFlag not in localUseDict:
-                    localUseDict[useFlag] = dict(packageName=useFlagDesc)
+                    localUseDict[useFlag] = {packageName : useFlagDesc}
                 else:
                     localUseDict[useFlag][packageName] = useFlagDesc
     return localUseDict
