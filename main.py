@@ -1,10 +1,9 @@
 import urwid
 import package_pane
 import tree_pane
-
-# class Pane
-#    def __init__(self, title, mainview):
-#        self.mainview 
+import useflag_pane
+import config_pane
+import config_parser
 
 class MainView(urwid.Frame):
     def __init__(self): # Default pane on launch
@@ -15,43 +14,61 @@ class MainView(urwid.Frame):
         self.tabs.append(init_pane)
         self.pop_up_open = False
         
-        pkg_pane = package_pane.vim_pane
-        pkg_pane2 = package_pane.ebuild_2pane
-        self.tabs.append(pkg_pane)
-        self.tabs.append(pkg_pane2)        
-
         init_header = get_status_text(self.tab_focus, len(self.tabs),
                 self.tabs[self.tab_focus].get_title())
          
         super(MainView, self).__init__(urwid.LineBox(self.tabs[self.tab_focus]), 
-                header=init_header, footer=edit_box )
+                header=init_header, footer=edit_box)
     
     def open_tabs_box(self):
         self.pop_up_open = True
         tab_buttons = []
         for index, tab in enumerate(self.tabs):
-            text = str(index + 1) + ": " + "hihihih"
-            button = urwid.Button(text)
-            urwid.connect_signal(button, 'click', MainView.set_tab_focus, index)
-            tab_buttons.append(button) 
+            text = str(index + 1) + ": " + tab.get_title()
+            button = urwid.AttrMap(urwid.Button(text), None, focus_map='reversed')
+            urwid.connect_signal(button.original_widget, 'click', 
+                    lambda button,index: self.set_tab_focus(index), index)
+            tab_buttons.append(button)
+        
         list_box = urwid.ListBox(urwid.SimpleFocusListWalker(tab_buttons))
-        self.contents['body'] =  (list_box, None)
+        self.contents['body'] = (list_box, None)       
 
     def open_pane_choice(self):
         self.pop_up_open = True
-        pane_buttons = []
+        tree_button = urwid.Button("Category / Package Tree List")
+        usel_button = urwid.Button("Local USE Flag Index")
+        useg_button = urwid.Button("Global USE Flag Index") 
+        conf_button = urwid.Button("Configuration Files")
+        enter_pkg = urwid.Edit("Get Package Information <category/package-name>: ")
+        
+        urwid.connect_signal(tree_button, 'click', 
+                lambda button,pane: self.open_tab(pane), tree_pane.Miller_Pane())
+       
+        urwid.connect_signal(usel_button, 'click', 
+                lambda button,pane: self.open_tab(pane), useflag_pane.USEFlag_Pane())
+        
+        urwid.connect_signal(useg_button, 'click', 
+                lambda button,pane: self.open_tab(pane), useflag_pane.USEFlag_Pane(state='global'))
+
+        urwid.connect_signal(conf_button, 'click', 
+                lambda button,pane: self.open_tab(pane), config_pane.Config_Pane())
  
-    # def open_tabs_box(self):
-    #     self.tabs_box_open = True
-    #     tab_buttons = []
-    #     for index,tab in enumerate(self.tabs):
-    #         text = str(index + 1) + ": " + "hihi"
-    #         button = urwid.AttrMap(urwid.Button(text), None, focus_map='reversed')
-    #         urwid.connect_signal(button.original_widget, 'click', 
-    #                 MainView.set_tab_focus, *[self, index])
-    #         tab_buttons.append(button)
-    #     list_walker = urwid.ListBox(urwid.SimpleFocusListWalker(tab_buttons))
-    #     self.contents['body'] = (list_walker, None)
+        urwid.connect_signal(enter_pkg, 'change', 
+                lambda edit,text: self.open_pkgtab(text))
+        
+        pane_buttons = list(map(lambda x: urwid.AttrMap(x, None, focus_map='reversed'),
+            [tree_button, usel_button, useg_button, conf_button, enter_pkg]))
+        
+        pane_choices = urwid.ListBox(urwid.SimpleFocusListWalker(pane_buttons))
+        self.contents['body'] = (pane_choices, None)
+
+    def open_pkgtab(self, pkg):
+        try:
+            self.open_tab(package_pane.Package_Pane(
+                config_parser.Ebuild(pkg)))
+        except:
+            pass
+
 
     def close_box(self):
         self.tabs_box_close = False
@@ -69,8 +86,11 @@ class MainView(urwid.Frame):
     def set_tab_focus(self, index):
         self.tab_focus = index % len(self.tabs) 
         self.contents['body'] = (urwid.LineBox(self.tabs[self.tab_focus]), None)
-        self.contents['header'] = (get_status_text(self.tab_focus, len(self.tabs),
-                self.tabs[self.tab_focus].get_title()), None)
+        self.contents['header'] = (get_status_text(self.tab_focus, len(self.tabs), 
+            self.tabs[self.tab_focus].get_title()), None)
+ 
+    def set_focus(self):
+        self.set_tab_focus(0)
 
     def handle_input(self, key):
         if self.pop_up_open:
@@ -95,6 +115,8 @@ class MainView(urwid.Frame):
             self.close_tab(self.tab_focus)
         if key == 'T':
             self.open_tabs_box()
+        if key == 'o':
+            self.open_pane_choice()
 
 def get_status_text(focus_index, num_tab, title):
     tab_text =  "Tab: " + str(focus_index + 1) + "/" + str(num_tab)
@@ -110,3 +132,11 @@ if __name__ == '__main__':
     mainv = MainView()
     loop = urwid.MainLoop(mainv, palette, unhandled_input=mainv.handle_input)
     loop.run()
+
+
+        # pkg_pane = package_pane.vim_pane
+        # pkg_pane2 = package_pane.ebuild_2pane
+        # usef_pane = useflag_pane.USEFlag_Pane() 
+        # self.tabs.append(pkg_pane)
+        # self.tabs.append(pkg_pane2)
+        # self.tabs.append(usef_pane)

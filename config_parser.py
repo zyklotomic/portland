@@ -95,7 +95,7 @@ class UseMask(ConfFile):
 
     # variables_dict['file_path'] = variables in the file
     def __init__(self, file_dir=use_mask_dir):
-        ConfFile.__init__(slf)
+        ConfFile.__init__(self)
         for j in collapse(file_dir):
             with open(j, 'r') as use_mask:
                 temp_list = []

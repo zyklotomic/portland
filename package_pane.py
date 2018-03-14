@@ -69,10 +69,11 @@ class Package_Pane(urwid.ListBox):
     def get_title(self):
         return self.title
 
-# palette = [('blue-bold', 'light blue', 'default', 'bold'),
-#             ('bold', 'white', 'default', 'bold'),
-#             ('italics', 'white', '', 'underline'),
-#             ('green-bold', 'light green', 'default', 'bold')]
+# if __name__ == '__main__':
+palette = [('blue-bold', 'light blue', 'default', 'bold'),
+            ('bold', 'white', 'default', 'bold'),
+            ('italics', 'white', '', 'underline'),
+            ('green-bold', 'light green', 'default', 'bold')]
 vim_ebuild = config_parser.Ebuild('dev-lang/python')
 ebuild_2 = config_parser.Ebuild('app-editors/neovim')
 ebuild_2pane = Package_Pane(ebuild_2)

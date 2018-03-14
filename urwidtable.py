@@ -52,9 +52,9 @@ class Table(urwid.Pile):
         return self.utable
          
 
-
-# rd = {"Apple" : ('red', '5', '6'), "Pear" : ('white', '1', '80')}
-#useTable = Table(rd, column_headers=['color', 'price', 'quantity'])
-#cnn = urwid.Columns([urwid.Text("hi"), urwid.Divider(), urwid.Text("wow"), urwid.Text("ree")])
-#loop = urwid.MainLoop(urwid.Filler(urwid.Pile([useTable.get_utable(), cnn]), 'top'))
-#loop.run()
+# if __name__ == "__main__":
+#     rd = {"Apple" : ('red', '5', '6'), "Pear" : ('white', '1', '80')}
+#     useTable = Table(rd, column_headers=['color', 'price', 'quantity'])
+#     cnn = urwid.Columns([urwid.Text("hi"), urwid.Divider(), urwid.Text("wow"), urwid.Text("ree")])
+#     loop = urwid.MainLoop(urwid.Filler(urwid.Pile([useTable.get_utable(), cnn]), 'top'))
+#     loop.run()
